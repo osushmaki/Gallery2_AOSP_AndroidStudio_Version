@@ -7,15 +7,11 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
+
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '8'
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
@@ -29,8 +25,14 @@ jobs:
 
       - name: Build APK
         run: bash ./gradlew assembleDebug --stacktrace
-      - name: Build APK
-        run: bash ./gradlew assembleDebug --stacktrace
+
+      - name: Inspect APK
+        run: |
+          APK="app/build/outputs/apk/debug/app-debug.apk"
+          echo "=== Native libraries in APK ==="
+          unzip -l "$APK" | grep -E 'lib/.*\.so$' || true
+          echo "=== APK file ==="
+          ls -lh "$APK"
 
       - name: Upload APK
         if: success()
